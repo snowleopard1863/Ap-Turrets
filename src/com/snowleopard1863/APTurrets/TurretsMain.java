@@ -12,6 +12,7 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -195,15 +196,14 @@ public class TurretsMain extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onDamage(EntityDamageByEntityEvent e) {
-		if (e.getEntity() instanceof Player && e.getDamager() instanceof Arrow) {
+		if (e.getDamager() instanceof Arrow) {
 			Arrow a = (Arrow) e.getDamager();
 			if (a.getCustomName() == "Bullet") {
-				Player player = (Player) e.getEntity();
 				Player shooter = (Player) a.getShooter();
+				((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.HARM, 1, 1));
 				if (Debug == true) {
-					logger.info(player.getName() + " was shot by " + shooter.getName());
+					logger.info(e.getEntity() + " was shot by " + shooter.getName());
 				}
-				player.setHealth(player.getHealth()-6);
 			}
 		}
 	}
