@@ -120,6 +120,10 @@ public final class TurretsMain extends JavaPlugin implements Listener {
 			Settings.OnFire.put(turretName, (Boolean) turretsMap.get(turretName).get("OnFire"));
 			Settings.RequiresAmmo.put(turretName, (Boolean) turretsMap.get(turretName).get("RequiresAmmo"));
 		}
+		if(input.equals(null) || data.equals(null)) {
+			getInstance().logger.severe("NO TURRETS LOADED!!! SHUTTING DOWN");
+			getInstance().getPluginLoader().disablePlugin(this);
+		}
 	}
 
 	@Override
