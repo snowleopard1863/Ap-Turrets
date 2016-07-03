@@ -1,3 +1,5 @@
+package com.snowleopard1863.APTurrets;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -8,8 +10,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,7 +38,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
     private PluginDescriptionFile pdfile = getDescription();
     private Logger logger = Logger.getLogger("Minecraft");
     private List<String> onTurrets = new ArrayList<String>();
-    private Boolean Debug = false;
+    private Boolean Debug = true;
     private FileConfiguration config = getConfig();
     private boolean takeFromInventory,takeFromChest,requireAmmo;
     private double costToPlace;
@@ -47,6 +51,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
         config.addDefault("Take arrows from inventory", true);
         config.addDefault("Take arrows from chest", true);
         config.addDefault("Require Ammo", true);
+        config.addDefault("Incindiary chance", 0.10);
         config.options().copyDefaults(true);
         this.saveConfig();
         /////load configs
@@ -82,11 +87,13 @@ public final class TurretsMain extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        for (int i = 0; i <= onTurrets.size(); i++) {
-            String playerName = onTurrets.get(i);
-            Player player = Bukkit.getServer().getPlayer(playerName);
-            setOffTurret(player, player.getLocation());
-            onTurrets.remove(player);
+        if (onTurrets.size() > 0){
+        	for (int i = 0; i <= onTurrets.size(); i++) {
+            	String playerName = onTurrets.get(i);
+            	Player player = Bukkit.getServer().getPlayer(playerName);
+            	setOffTurret(player, player.getLocation());
+            	onTurrets.remove(player);
+        	}
         }
         logger.info(pdfile.getName() + " v" + pdfile.getVersion() + " has been disabled.");
     }
@@ -102,13 +109,13 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                 if (Debug == true) {
                     logger.info(event.getPlayer() + " is on a turret");
                 }
-                if (event.getPlayer().getItemInHand().getType() == Material.MILK_BUCKET) {
+                if (player.getInventory().getItemInMainHand().getType() == Material.MILK_BUCKET) {
                     if (Debug == true) {
                         logger.info(event.getPlayer() + " has right clicked a milk bucket!");
                     }
                     event.setCancelled(true);
                 }
-                if (player.getItemInHand().getType() == Material.STONE_BUTTON
+                if (player.getInventory().getItemInMainHand().getType() == Material.STONE_BUTTON
                 && player.getInventory().contains(Material.ARROW)
                 && requireAmmo){
                     fireTurret(player);
@@ -116,10 +123,10 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                     if (Debug == true) {
                         logger.info(event.getPlayer() + " has shot");
                     }
-                } else if (player.getItemInHand().getType() == Material.STONE_BUTTON
+                } else if (player.getInventory().getItemInMainHand().getType() == Material.STONE_BUTTON
                 && player.getInventory().contains(Material.ARROW) != true) {
                     World world = player.getWorld();
-                    world.playSound(player.getLocation(), Sound.CLICK, 1, 2);
+                    world.playSound(player.getLocation(), Sound.BLOCK_DISPENSER_FAIL, 1, 2);
                     event.setCancelled(true);
                     if (Debug == true) {
                         logger.info(event.getPlayer() + " is out of ammo");
@@ -176,9 +183,10 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                         logger.info("A Mounted Gun sign failed to place");
                     }
                     //if false, clear the sign and return a permision error
+                    Sign sign = (Sign) event.getBlock().getState();
                     for(int i=0;i<4;i++)
-                        event.setLine(i, "");
-                    ((Sign)event).update();
+                        sign.setLine(i, "");
+                    sign.update();
                     player.sendMessage("Sorry, you don't have enough money to place a turret");             
                 }
             }
@@ -188,9 +196,10 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                     logger.info("A Mounted Gun sign failed to place");
                 }
                 //if false, clear the sign and return a permision error
+                Sign sign = (Sign) event.getBlock().getState();
                 for(int i=0;i<4;i++)
-                    event.setLine(i, "");
-                ((Sign)event).update();
+                    sign.setLine(i, "");
+                sign.update();
                 player.sendMessage("Sorry, you don't have that permission");
             }
         }
@@ -208,8 +217,8 @@ public final class TurretsMain extends JavaPlugin implements Listener {
         arrow.setCustomNameVisible(false);
         arrow.setKnockbackStrength(2);
         World world = player.getWorld();
-        world.playSound(player.getLocation(), Sound.GHAST_FIREBALL, 1, 2);
-        //world.playEffect(player.getLocation(), Effect.EXPLOSION_LARGE, 0);
+        world.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_BLAST, 1, 2);
+        world.playEffect(player.getLocation(), Effect.EXPLOSION_LARGE, 0);
         player.getInventory().removeItem(new ItemStack(Material.ARROW, 0));
         // Location loc = new Location(player.getWorld(),
         // player.getLocation().getX(), player.getLocation().getY(),
@@ -258,7 +267,16 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                 World world = event.getEntity().getWorld();
                 Location l = arrowLoc.getBlock().getLocation();
                 arrow.getWorld().playEffect(l, Effect.STEP_SOUND, world.getBlockTypeIdAt(l));
-                arrow.getWorld().playSound(l, Sound.ITEM_BREAK, 1, 2);
+                arrow.getWorld().playSound(l, Sound.ENTITY_ITEM_BREAK, 1, 2);
+                Block block = l.getBlock();
+                double rand = Math.random();
+                double incindiaryPercent = 0.20;
+                if (rand <= incindiaryPercent){
+                	if (Debug = true){
+                		logger.info("Block was set on fire");
+                	}
+                	block.setType(Material.FIRE);	
+                }
                 // Vector vec = arrow.getVelocity().clone().normalize();
                 // vec.setX(vec.getX() * 0.1);
                 // vec.setY(vec.getY() * 0.1);
@@ -287,7 +305,12 @@ public final class TurretsMain extends JavaPlugin implements Listener {
             Arrow a = (Arrow) e.getDamager();
             if (a.getCustomName() == "Bullet") {
                 Player shooter = (Player) a.getShooter();
-                ((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.HARM, 1, 1));
+                if (e.getEntity().getType() == EntityType.ZOMBIE || e.getEntity().getType() == EntityType.PIG_ZOMBIE || e.getEntity().getType() == EntityType.SKELETON){
+                	
+                }
+                else {
+                	((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.HARM, 1, 1));
+                }
                 if (Debug == true) {
                     logger.info(e.getEntity() + " was shot by " + shooter.getName());
                 }
@@ -321,7 +344,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                 logger.info("Sign detected");
             }
             Sign sign = (Sign) signPos.getBlock().getState();
-            if ("0[+]0".equals(sign.getLine(2))) {
+            if (onTurrets.contains(player.getName())) {
                 player.sendMessage("Sorry, that turret is being used");
                 if (Debug == true) {
                     logger.info("1 player per turret");
@@ -330,7 +353,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                 if (Debug == true) {
                     logger.info(player.getName() + " is now on a turret");
                 }
-                sign.setLine(2, "0[+]0");
+                sign.setLine(2, player.getName());
                 sign.update();
                 onTurrets.add(player.getName());
                 signPos.add(0.5, 0, 0.5);
