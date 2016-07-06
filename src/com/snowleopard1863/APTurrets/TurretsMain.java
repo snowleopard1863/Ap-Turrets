@@ -183,10 +183,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                         logger.info("A Mounted Gun sign failed to place");
                     }
                     //if false, clear the sign and return a permision error
-                    Sign sign = (Sign) event.getBlock().getState();
-                    for(int i=0;i<4;i++)
-                        sign.setLine(i, "");
-                    sign.update();
+                    event.setCancelled(true);
                     player.sendMessage("Sorry, you don't have enough money to place a turret");             
                 }
             }
@@ -196,10 +193,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                     logger.info("A Mounted Gun sign failed to place");
                 }
                 //if false, clear the sign and return a permision error
-                Sign sign = (Sign) event.getBlock().getState();
-                for(int i=0;i<4;i++)
-                    sign.setLine(i, "");
-                sign.update();
+                event.setCancelled(true);
                 player.sendMessage("Sorry, you don't have that permission");
             }
         }
