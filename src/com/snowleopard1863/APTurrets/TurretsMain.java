@@ -38,7 +38,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
     private PluginDescriptionFile pdfile = getDescription();
     private Logger logger = Logger.getLogger("Minecraft");
     private List<String> onTurrets = new ArrayList<String>();
-    private Boolean Debug = true;
+    private Boolean Debug = false;
     private FileConfiguration config = getConfig();
     private boolean takeFromInventory,takeFromChest,requireAmmo;
     private double costToPlace;
