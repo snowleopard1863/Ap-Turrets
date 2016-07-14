@@ -40,7 +40,8 @@ public final class TurretsMain extends JavaPlugin implements Listener {
     private List<String> onTurrets = new ArrayList<String>();
     private Boolean Debug = false;
     private FileConfiguration config = getConfig();
-    private boolean takeFromInventory,takeFromChest,requireAmmo;
+    @SuppressWarnings("unused")
+	private boolean takeFromInventory,takeFromChest,requireAmmo;
     private double costToPlace;
     private static Economy economy;
     @Override
@@ -203,9 +204,9 @@ public final class TurretsMain extends JavaPlugin implements Listener {
     {
         Arrow arrow = player.launchProjectile(Arrow.class);
         arrow.setShooter(player);
-        arrow.setVelocity(player.getLocation().getDirection().multiply(5));
+        arrow.setVelocity(player.getLocation().getDirection().multiply(4));
         arrow.setBounce(false);
-        arrow.setFireTicks(500);
+        //arrow.setFireTicks(500);
         arrow.setCritical(true);
         arrow.setCustomName("Bullet");
         arrow.setCustomNameVisible(false);
@@ -249,7 +250,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+	@EventHandler
     public void onHit(ProjectileHitEvent event) {
         if (event.getEntity() instanceof Arrow) {
             Arrow arrow = (Arrow) event.getEntity();
@@ -262,14 +263,14 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                 Location l = arrowLoc.getBlock().getLocation();
                 arrow.getWorld().playEffect(l, Effect.STEP_SOUND, world.getBlockTypeIdAt(l));
                 arrow.getWorld().playSound(l, Sound.ENTITY_ITEM_BREAK, 1, 2);
-                Block block = l.getBlock();
-                double rand = Math.random();
-                double incindiaryPercent = 0.20;
-                if (rand <= incindiaryPercent){
-                	if (Debug = true){
-                		logger.info("Block was set on fire");
-                	}
-                	block.setType(Material.FIRE);	
+                //Block block = l.getBlock();
+                //double rand = Math.random();
+                //double incindiaryPercent = 0.20;
+                //if (rand <= incindiaryPercent){
+                	//if (Debug = true){
+                		//logger.info("Block was set on fire");
+                	//}
+                	//block.setType(Material.FIRE);	
                 }
                 // Vector vec = arrow.getVelocity().clone().normalize();
                 // vec.setX(vec.getX() * 0.1);
@@ -291,7 +292,6 @@ public final class TurretsMain extends JavaPlugin implements Listener {
                 // }
             }
         }
-    }
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
