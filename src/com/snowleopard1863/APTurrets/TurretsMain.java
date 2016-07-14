@@ -210,7 +210,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
         arrow.setCritical(true);
         arrow.setCustomName("Bullet");
         arrow.setCustomNameVisible(false);
-        arrow.setKnockbackStrength(2);
+        arrow.setKnockbackStrength(0);
         World world = player.getWorld();
         world.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_BLAST, 1, 2);
         world.playEffect(player.getLocation(), Effect.EXPLOSION_LARGE, 0);
@@ -300,7 +300,7 @@ public final class TurretsMain extends JavaPlugin implements Listener {
             if (a.getCustomName() == "Bullet") {
                 Player shooter = (Player) a.getShooter();
                 if (e.getEntity().getType() == EntityType.ZOMBIE || e.getEntity().getType() == EntityType.PIG_ZOMBIE || e.getEntity().getType() == EntityType.SKELETON){
-                	
+                	((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 1, 1));
                 }
                 else {
                 	((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.HARM, 1, 1));
